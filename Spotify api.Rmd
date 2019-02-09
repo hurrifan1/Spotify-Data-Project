@@ -1,0 +1,310 @@
+---
+title: "Spotify R"
+author: "Austin Spivey"
+date: "2/8/2019"
+output: html_document
+---
+
+Set up.
+
+```{r}
+#install.packages("httr")
+
+library(httr)
+```
+
+
+Grab my playlists in order to identify the Playlist IDs of the two 'The Daily' playlists.
+
+First, grabbing raw data from the Spotify API:
+
+```{r}
+auth = "BQBDe1-bio2xKiua7_ZfRFcgRP7iKLxI--QQWcrg4eFsiAmwJpoT9MV4J9dCouSU1i-0Qe3nMwRDUYeP4-i2-FVKGPn0eNQOt21hDNndPtx4BvM1DitY0yQI1fQiPgyfnwfS9D5diup3x6OcJnLq1tlAiQS69Q"
+url = "https://api.spotify.com/v1/users/aspives/playlists"
+r = GET(url, add_headers("Authorization" = paste0("Bearer ", auth)))
+body = content(r, as = "parsed")
+```
+
+
+Get Playlist IDs:
+
+```{r}
+PL_df = data.frame("ID" = character(), "Name" = character(), stringsAsFactors = FALSE)
+
+for ( x in 1:length(body[["items"]]) ) {
+  if(length(grep("(daily)", body[["items"]][[x]][["name"]], ignore.case = TRUE)) > 0) {
+    PL_df[x,] = c(body[["items"]][[x]][["name"]], body[["items"]][[x]][["id"]])
+  }
+}
+
+PL_df = na.omit(PL_df)
+```
+
+
+Now we can use the IDs in another Spotify API call to grab the track, artist, metadata, and other information in each one.
+
+Get track info:
+
+```{r}
+auth = "BQAdaBHOtuIkUaTiRU6IiulvwIbBeDuyZ-F-52EzJSLfBVTCVZb7PRt_nmzq6mgLprLuYAagv_BJoOueGC-w0mqfX_j6d2EAXvcrCP5gpVHLS3-UsT_MinOZOG9J6rWI6GOi_ffP4baXkqsge6RsByTDZNK_7Q"
+
+
+
+track_df = data.frame("MasterRow" = integer(), "Playlist ID" = character(), "Playlist Name" = character(), "Added At" = character(), "Added By" = character(), "Album" = character(), "Album ID" = character(), "Album Type" = character(), "Album Release Date" = character(), "Artist" = character(), "Artist ID" = character(), "Explicit" = character(), "ISRC" = character(), "Song ID" = character(), "Song Title" = character(), "Song Popularity" = character(), "Duration (ms)" = character(), "Is Playable" = character(), stringsAsFactors = FALSE)
+
+
+for ( y in 1:nrow(PL_df)){
+
+offset = 0
+stop = 0
+
+while (stop == 0) {
+
+url = paste0("https://api.spotify.com/v1/playlists/", PL_df[y,2], "/tracks?market=US&limit=100&offset=", offset)
+r = GET(url, add_headers("Authorization" = paste0("Bearer ", auth)))
+body = content(r, as = "parsed")
+
+
+
+
+  for ( x in 1:length(body[["items"]]) ) {
+    for (a in 1:length(body[["items"]][[x]][["track"]][["artists"]])) {
+    track_df[nrow(track_df)+1,] = c(
+                          # MasterRow
+                          nrow(track_df)+1,
+                          # Playlist ID
+                          PL_df[y,2],
+                          # Playlist Name
+                          PL_df[y,1],
+                          # Added At
+                          body[["items"]][[x]][["added_at"]],
+                          # Added By
+                          body[["items"]][[x]][["added_by"]][["id"]],
+                          # Album
+                          body[["items"]][[x]][["track"]][["album"]][["name"]],
+                          # Album ID
+                          body[["items"]][[x]][["track"]][["album"]][["id"]],
+                          # Album Type
+                          body[["items"]][[x]][["track"]][["album"]][["album_type"]],
+                          # Album Release Date
+                          body[["items"]][[x]][["track"]][["album"]][["release_date"]],
+                          # Artist
+                          body[["items"]][[x]][["track"]][["artists"]][[a]][["name"]],
+                          # Artist ID
+                          body[["items"]][[x]][["track"]][["artists"]][[a]][["id"]],
+                          # Explicit
+                          body[["items"]][[x]][["track"]][["explicit"]],
+                          # ISRC
+                          body[["items"]][[x]][["track"]][["external_ids"]][["isrc"]],
+                          # Song ID
+                          body[["items"]][[x]][["track"]][["id"]],
+                          # Song Title
+                          body[["items"]][[x]][["track"]][["name"]],
+                          # Song Popularity
+                          body[["items"]][[x]][["track"]][["popularity"]],
+                          # Duration (ms)
+                          body[["items"]][[x]][["track"]][["duration_ms"]],
+                          # Is Playable
+                          body[["items"]][[x]][["track"]][["is_playable"]]
+                          )
+    }
+  }
+
+
+if (  !is.null(body[["next"]])){ 
+  offset = offset + 100
+} else {
+    stop = 1
+  }
+
+}
+
+}
+```
+
+
+Cross check numbers:
+
+```{r}
+length(unique(track_df[,4]))
+```
+
+
+The total song count between the two playlists is super close to being correct, but it looks like 2 of the songs in the playlists are unplayable for some reason, so let's ditch those:
+```{r}
+track_df = track_df[track_df$Is.Playable == TRUE, ]
+```
+
+
+Bring in artist info:
+
+```{r}
+auth = "BQAdaBHOtuIkUaTiRU6IiulvwIbBeDuyZ-F-52EzJSLfBVTCVZb7PRt_nmzq6mgLprLuYAagv_BJoOueGC-w0mqfX_j6d2EAXvcrCP5gpVHLS3-UsT_MinOZOG9J6rWI6GOi_ffP4baXkqsge6RsByTDZNK_7Q"
+
+df_artists = track_df$Artist.ID
+
+artists = ""
+
+lank = 50
+
+inn = 1
+
+
+track_artists = data.frame("MasterRow" = "", "Artist ID" = "", "Artist Name" = "", "Artist Genre" = "", "Artist Popularity" = "", "Artist Followers" = "", stringsAsFactors = FALSE)
+
+#while ( !is.na(track_artists$Artist.ID)){
+ while ( lank <= (nrow(track_df) + 50)){
+
+  if ( lank > nrow(track_df) ) { 
+        lank = nrow(track_df)
+      }
+   
+artists = ""
+
+for ( p in inn:lank) { artists = paste0(artists,"%2C",df_artists[p])}
+
+artists = substr(artists, 4, nchar(artists) - 3)
+  
+url = paste0("https://api.spotify.com/v1/artists?ids=", artists)
+r = GET(url, add_headers("Authorization" = paste0("Bearer ", auth)))
+body = content(r, as = "parsed")
+  
+
+
+  for ( x in 1:50 ) {
+    for (a in 1:length(body[["artists"]][[x]][["genres"]])) {
+    track_artists[nrow(track_artists)+1,] = c(
+                          # MasterRow
+                          nrow(track_artists)+1,
+                          # Artist ID
+                          body[["artists"]][[x]][["id"]],
+                          # Artist Name
+                          body[["artists"]][[x]][["name"]],
+                          # Artist Genre
+                          if ( length(body[["artists"]][[x]][["genres"]]) == 0 ) {NA} else {
+                          body[["artists"]][[x]][["genres"]][[a]] },
+                          # Artist Popularity
+                          body[["artists"]][[x]][["popularity"]],
+                          # Artist Followers
+                          body[["artists"]][[x]][["followers"]][["total"]]
+                          )
+    }
+  }
+
+lank = lank + 50
+inn = inn + 50
+
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+Bring in song audio analysis data:
+
+```{r}
+auth = "BQCj797c9viisZ1_cmbqfnf_MGZLnQxxK4eavtPoJ13xrbN-EUoinSdKRAMTLEdGu-hBZPYZnrRmp__yHv1YKbKNcY1Y8XYDTOXTX3pCZY9Cpu0X36FN678-tmV2veQQnXUNRxa3e6VJp77aPinOJBs8yEb_gA"
+
+df_songs = track_df$Song.ID
+
+songs = ""
+
+lank = 50
+
+inn = 1
+
+
+track_songs = data.frame("MasterRow" = integer(), "Song ID" = character(), "Danceability" = character(), "Energy" = character(), "Key" = character(), "Loudness" = character(), "Mode" = character(), "Speechiness" = character(), "Acousticness" = character(), "Instrumentalness" = character(), "Liveness" = character(), "Valence" = character(), "Tempo" = character(), "Type" = character(), "Time Signature" = character(), stringsAsFactors = FALSE)
+
+#while ( !is.na(track_songs$Song.ID)){
+ while ( lank <= (nrow(track_df) + 50)){
+
+  if ( lank > nrow(track_df) ) { 
+        lank = nrow(track_df)
+      }
+   
+songs = ""
+
+for ( p in inn:lank) { songs = paste0(songs,"%2C",df_songs[p])}
+
+songs = substr(songs, 4, nchar(songs) - 3)
+  
+url = paste0("https://api.spotify.com/v1/audio-features?ids=", songs)
+r = GET(url, add_headers("Authorization" = paste0("Bearer ", auth)))
+body = content(r, as = "parsed")
+  
+
+
+  for ( x in 1:50 ) {
+    track_songs[nrow(track_songs)+1,] = c(
+                          # MasterRow
+                          nrow(track_songs)+1,
+                          # Song ID
+                          body[["audio_features"]][[x]][["id"]],
+                          # Danceability
+                          body[["audio_features"]][[x]][["danceability"]],
+                          # Energy
+                          body[["audio_features"]][[x]][["energy"]],
+                          # Key
+                          body[["audio_features"]][[x]][["key"]],
+                          # Loudness
+                          body[["audio_features"]][[x]][["loudness"]],
+                          # Mode
+                          body[["audio_features"]][[x]][["mode"]],
+                          # Speechiness
+                          body[["audio_features"]][[x]][["speechiness"]],
+                          # Acousticness
+                          body[["audio_features"]][[x]][["acousticness"]],
+                          # Instrumentalness
+                          body[["audio_features"]][[x]][["instrumentalness"]],
+                          # Liveness
+                          body[["audio_features"]][[x]][["liveness"]],
+                          # Valence
+                          body[["audio_features"]][[x]][["valence"]],
+                          # Tempo
+                          body[["audio_features"]][[x]][["tempo"]],
+                          # Type
+                          body[["audio_features"]][[x]][["type"]],
+                          # Time Signature
+                         body[["audio_features"]][[x]][["time_signature"]]
+                          )
+  }
+
+lank = lank + 50
+inn = inn + 50
+
+}
+```
+
+
+
+
+
+
+
+Cleaning our data:
+
+```{r}
+# Ditch some erroneous values that were brought in
+track_df = track_songs[nchar(track_songs$Song.ID) > 10, ]
+```
+
+
+
+Output data frames to CSV:
+
+```{r}
+write.csv2(track_df, "/Users/austin/Documents/Data Stuff/Spotify R project/track_df.csv")
+
+write.csv2(track_artists, "/Users/austin/Documents/Data Stuff/Spotify R project/track_artists.csv")
+
+write.csv2(track_songs, "/Users/austin/Documents/Data Stuff/Spotify R project/track_songs.csv")
+```
+
