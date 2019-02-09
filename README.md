@@ -10,6 +10,7 @@ The data and much of the metadata from the two Daily playlists have been saved a
 <br>
 
 ####Table: track_df
+
 |    | Column Name        | Key      |
 |----|--------------------|----------|
 | 1  | MasterRow          |          |
@@ -34,6 +35,7 @@ The data and much of the metadata from the two Daily playlists have been saved a
 <br>
 
 ####Table: track_artists
+
 |    | Column Name       | Key      |
 |----|-------------------|----------|
 | 1  | MasterRow         |          |
@@ -46,6 +48,7 @@ The data and much of the metadata from the two Daily playlists have been saved a
 <br>
 
 ####Table: track_songs
+
 |    | Column Name      | Key |
 |----|------------------|-----|
 | 1  | MasterRow        |     |
