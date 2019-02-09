@@ -6,6 +6,8 @@ The data and much of the metadata from the two Daily playlists have been saved a
 * Some of the extra artist information is saved in `track_artists.csv`
 * The audio analysis data for each song in either playlist is saved in `track_songs.csv`
 
+Descriptions of each column can be found [here](https://developer.spotify.com/documentation/web-api/reference/).
+
 ### Table Schemas
 <br>
 
