@@ -19,7 +19,7 @@ Grab my playlists in order to identify the Playlist IDs of the two 'The Daily' p
 First, grabbing raw data from the Spotify API:
 
 ```{r}
-auth = "BQBDe1-bio2xKiua7_ZfRFcgRP7iKLxI--QQWcrg4eFsiAmwJpoT9MV4J9dCouSU1i-0Qe3nMwRDUYeP4-i2-FVKGPn0eNQOt21hDNndPtx4BvM1DitY0yQI1fQiPgyfnwfS9D5diup3x6OcJnLq1tlAiQS69Q"
+auth = "BQAxZBPvS0UoQ2URIbbC-6w9iNu2Qt2j2k0TIfPlce_PQAK3r4B6DEQlgwuRzCigy93S-DQrbbO7T2s5jJNnhDO1o8Ut0wf72GWp1H3WoX9ValayBVioinpXdo2Rumq3HYqkcDtaMPSMkp2CfzcZ2UlLRCx7RA"
 url = "https://api.spotify.com/v1/users/aspives/playlists"
 r = GET(url, add_headers("Authorization" = paste0("Bearer ", auth)))
 body = content(r, as = "parsed")
@@ -46,7 +46,7 @@ Now we can use the IDs in another Spotify API call to grab the track, artist, me
 Get track info:
 
 ```{r}
-auth = "BQAdaBHOtuIkUaTiRU6IiulvwIbBeDuyZ-F-52EzJSLfBVTCVZb7PRt_nmzq6mgLprLuYAagv_BJoOueGC-w0mqfX_j6d2EAXvcrCP5gpVHLS3-UsT_MinOZOG9J6rWI6GOi_ffP4baXkqsge6RsByTDZNK_7Q"
+auth = "BQAxZBPvS0UoQ2URIbbC-6w9iNu2Qt2j2k0TIfPlce_PQAK3r4B6DEQlgwuRzCigy93S-DQrbbO7T2s5jJNnhDO1o8Ut0wf72GWp1H3WoX9ValayBVioinpXdo2Rumq3HYqkcDtaMPSMkp2CfzcZ2UlLRCx7RA"
 
 
 
@@ -139,7 +139,7 @@ track_df = track_df[track_df$Is.Playable == TRUE, ]
 Bring in artist info:
 
 ```{r}
-auth = "BQAdaBHOtuIkUaTiRU6IiulvwIbBeDuyZ-F-52EzJSLfBVTCVZb7PRt_nmzq6mgLprLuYAagv_BJoOueGC-w0mqfX_j6d2EAXvcrCP5gpVHLS3-UsT_MinOZOG9J6rWI6GOi_ffP4baXkqsge6RsByTDZNK_7Q"
+auth = "BQAxZBPvS0UoQ2URIbbC-6w9iNu2Qt2j2k0TIfPlce_PQAK3r4B6DEQlgwuRzCigy93S-DQrbbO7T2s5jJNnhDO1o8Ut0wf72GWp1H3WoX9ValayBVioinpXdo2Rumq3HYqkcDtaMPSMkp2CfzcZ2UlLRCx7RA"
 
 df_artists = track_df$Artist.ID
 
@@ -210,7 +210,7 @@ inn = inn + 50
 Bring in song audio analysis data:
 
 ```{r}
-auth = "BQCj797c9viisZ1_cmbqfnf_MGZLnQxxK4eavtPoJ13xrbN-EUoinSdKRAMTLEdGu-hBZPYZnrRmp__yHv1YKbKNcY1Y8XYDTOXTX3pCZY9Cpu0X36FN678-tmV2veQQnXUNRxa3e6VJp77aPinOJBs8yEb_gA"
+auth = "BQAxZBPvS0UoQ2URIbbC-6w9iNu2Qt2j2k0TIfPlce_PQAK3r4B6DEQlgwuRzCigy93S-DQrbbO7T2s5jJNnhDO1o8Ut0wf72GWp1H3WoX9ValayBVioinpXdo2Rumq3HYqkcDtaMPSMkp2CfzcZ2UlLRCx7RA"
 
 df_songs = track_df$Song.ID
 
@@ -293,18 +293,240 @@ Cleaning our data:
 
 ```{r}
 # Ditch some erroneous values that were brought in
-track_df = track_songs[nchar(track_songs$Song.ID) > 10, ]
+track_songs = track_songs[nchar(track_songs$Song.ID) > 10, ]
 ```
+
+
+Fix usernames:
+
+```{r}
+track_df$Our.Names = ""
+
+for (g in 1:nrow(track_df)){
+  if ( track_df[g,"Added.By"] == "aspives") {track_df[g,"Our.Names"] = "Austin" }
+  if ( track_df[g,"Added.By"] == "will100dankos") {track_df[g,"Our.Names"] = "Will" }
+  if ( track_df[g,"Added.By"] == "vddiiymmzfi9hasnn9tct6au2") {track_df[g,"Our.Names"] = "Tyler" }
+  if ( track_df[g,"Added.By"] == "1230145895") {track_df[g,"Our.Names"] = "Alec" }
+  if ( track_df[g,"Added.By"] == "1296143342") {track_df[g,"Our.Names"] = "Arnav" }
+  if ( track_df[g,"Added.By"] == "12168315368") {track_df[g,"Our.Names"] = "Max" }
+  if ( track_df[g,"Added.By"] == "bradpehr") {track_df[g,"Our.Names"] = "Brad" }
+  if ( track_df[g,"Added.By"] == "kirkkovach") {track_df[g,"Our.Names"] = "Kirk" }
+  if ( track_df[g,"Added.By"] == "rahollraholl") {track_df[g,"Our.Names"] = "Stephen" }
+}
+```
+
+
+
+Get data on personal library
+
+```{r}
+auth = "BQD2OaC3aBoRLFw9a66Kcbt36VBBfN7R-rESMaFhJdmjW4zncnPrOyYf884Km2zz4GDG4bEUsdfM_9n8tyGd27CxwtrWqnhfKdNoeLXdj53_dM_9c_vefttIQEg6PL4oVfbJRC-bQeMMJD_-JZTRcwDJazXIdrxT9GztpQ"
+
+your_username = "aspives"
+
+
+track_library = data.frame("MasterRow" = integer(), "user" = character(), "Added At" = character(), "Album" = character(), "Album ID" = character(), "Album Type" = character(), "Album Release Date" = character(), "Artist" = character(), "Artist ID" = character(), "Explicit" = character(), "ISRC" = character(), "Song ID" = character(), "Song Title" = character(), "Song Popularity" = character(), "Duration (ms)" = character(), "Is Playable" = character(), stringsAsFactors = FALSE)
+
+offset = 0
+stop = 0
+
+while (stop == 0) {
+
+url = paste0("https://api.spotify.com/v1/me/tracks?market=US&limit=50&offset=0", offset)
+r = GET(url, add_headers("Authorization" = paste0("Bearer ", auth)))
+body = content(r, as = "parsed")
+
+  for ( x in 1:length(body[["items"]]) ) {
+    for (a in 1:length(body[["items"]][[x]][["track"]][["artists"]])) {
+    track_library[nrow(track_library)+1,] = c(
+                          # MasterRow
+                          nrow(track_library)+1,
+                          # user
+                          your_username,
+                          # Added At
+                          body[["items"]][[x]][["added_at"]],
+                          # Added By
+                          body[["items"]][[x]][["added_by"]][["id"]],
+                          # Album
+                          body[["items"]][[x]][["track"]][["album"]][["name"]],
+                          # Album ID
+                          body[["items"]][[x]][["track"]][["album"]][["id"]],
+                          # Album Type
+                          body[["items"]][[x]][["track"]][["album"]][["album_type"]],
+                          # Album Release Date
+                          body[["items"]][[x]][["track"]][["album"]][["release_date"]],
+                          # Artist
+                          body[["items"]][[x]][["track"]][["artists"]][[a]][["name"]],
+                          # Artist ID
+                          body[["items"]][[x]][["track"]][["artists"]][[a]][["id"]],
+                          # Explicit
+                          body[["items"]][[x]][["track"]][["explicit"]],
+                          # ISRC
+                          body[["items"]][[x]][["track"]][["external_ids"]][["isrc"]],
+                          # Song ID
+                          body[["items"]][[x]][["track"]][["id"]],
+                          # Song Title
+                          body[["items"]][[x]][["track"]][["name"]],
+                          # Song Popularity
+                          body[["items"]][[x]][["track"]][["popularity"]],
+                          # Duration (ms)
+                          body[["items"]][[x]][["track"]][["duration_ms"]],
+                          # Is Playable
+                          body[["items"]][[x]][["track"]][["is_playable"]]
+                          )
+    }
+  }
+
+
+if (  !is.null(body[["next"]])){ 
+  offset = offset + 50
+} else {
+    stop = 1
+  }
+
+}
+```
+
+
+
+
+Genius API calls!
+
+```{r}
+auth = "vPRU-vpdXiXrDBVZTC4uur4GTvOE9GhShXdjopz5FkhvglwAc5vKRRDcDvKZyEx2"
+
+
+track_genius = data.frame("MasterRow" = integer(), "Song Title" = character(), "Song Title with Feat" = character(), "Genius ID" = character(), "Hot" = character(), "Page Views" = character(), stringsAsFactors = FALSE)
+
+# q = "Mile High"
+# q = URLencode(q)
+
+for (q in 1:nrow(track_df)) { 
+
+url = paste0("https://api.genius.com/search?q=", URLencode(track_df[q,15]))
+r = GET(url, add_headers("Authorization" = paste0("Bearer ", auth)))
+body = content(r, as = "parsed")
+
+  for ( x in 1:length(body[["items"]]) ) {
+    for (a in 1:length(body[["items"]][[x]][["track"]][["artists"]])) {
+    track_genius[nrow(track_genius)+1,] = c(
+                          # MasterRow
+                          nrow(track_genius)+1,
+                          # Song Title
+                          body[["response"]][["hits"]][[1]][["result"]][["title"]],
+                          # Song Title with Feat
+                          body[["response"]][["hits"]][[1]][["result"]][["title_with_featured"]],
+                          # Genius ID
+                          body[["response"]][["hits"]][[1]][["result"]][["id"]],
+                          # Hot
+                          body[["response"]][["hits"]][[1]][["result"]][["stats"]][["hot"]],
+                          # Page Views
+                          body[["response"]][["hits"]][[1]][["result"]][["stats"]][["pageviews"]]
+                          )
+    }
+  }
+
+
+if (  !is.null(body[["next"]])){ 
+  offset = offset + 50
+} else {
+    stop = 1
+  }
+
+}
+```
+
+
+
 
 
 
 Output data frames to CSV:
 
 ```{r}
-write.csv2(track_df, "/Users/austin/Documents/Data Stuff/Spotify R project/track_df.csv")
+write.csv2(track_df, "/Users/austin/Documents/Data Stuff/Spotify Data project/track_df.csv")
 
-write.csv2(track_artists, "/Users/austin/Documents/Data Stuff/Spotify R project/track_artists.csv")
+write.csv2(track_artists, "/Users/austin/Documents/Data Stuff/Spotify Data project/track_artists.csv")
 
-write.csv2(track_songs, "/Users/austin/Documents/Data Stuff/Spotify R project/track_songs.csv")
+write.csv2(track_songs, "/Users/austin/Documents/Data Stuff/Spotify Data project/track_songs.csv")
+
+write.csv2(track_library, "/Users/austin/Documents/Data Stuff/Spotify Data project/track_library.csv")
+```
+
+
+```{r}
+auth = "vPRU-vpdXiXrDBVZTC4uur4GTvOE9GhShXdjopz5FkhvglwAc5vKRRDcDvKZyEx2"
+
+track_genius = data.frame("MasterRow" = integer(), "Song Title" = character(), "Song Title with Feat" = character(), "Artist" = character(), "Genius ID" = character(), "Searched Song" = character(), "Searched Song Spotify ID" = character(), "Hot" = character(), "Page Views" = character(), stringsAsFactors = FALSE)
+
+all_artists = c()
+
+
+for (q in 1:nrow(track_df)) {
+# for (q in 1:7) {
+    
+if ( track_df[q, 14] == if( is.na(track_df[q+1, 14]) ){
+  "@~darth@@"
+  
+  } else {track_df[q+1, 14]} ) {
+  all_artists[length(all_artists)+1] = track_df[q, 10]
+  next} else {
+    all_artists[length(all_artists)+1] = track_df[q, 10]
+    query = paste0(track_df[q,15], " ", paste(all_artists, collapse = ' '))
+    query_url = URLencode(query)
+    
+    url = paste0("https://api.genius.com/search?q=", query_url)
+    r = GET(url, add_headers("Authorization" = paste0("Bearer ", auth)))
+    body = content(r, as = "parsed")
+    
+    if ( length(body[["response"]][["hits"]]) == 0) {
+      track_genius[nrow(track_genius)+1,] = c(nrow(track_genius)+1,all_artists,NA,NA,NA,NA,NA,NA,NA)
+      next
+    }
+
+
+    track_genius[nrow(track_genius)+1,] = c(
+                          # MasterRow
+                          nrow(track_genius)+1,
+                          # Song Title
+                          body[["response"]][["hits"]][[1]][["result"]][["title"]],
+                          # Song Title with Feat
+                          body[["response"]][["hits"]][[1]][["result"]][["title_with_featured"]],
+                          # Artist
+                          body[["response"]][["hits"]][[1]][["result"]][["primary_artist"]][["name"]],
+                          # Genius ID
+                          body[["response"]][["hits"]][[1]][["result"]][["id"]],
+                          # Searched Song
+                          query,
+                          # Searched Song Spotify ID
+                          track_df[q, 14],
+                          # Hot
+                          body[["response"]][["hits"]][[1]][["result"]][["stats"]][["hot"]],
+                          # Page Views
+                          if(is.null(body[["response"]][["hits"]][[1]][["result"]][["stats"]][["pageviews"]])) {
+                            NA
+                          } else{
+                          body[["response"]][["hits"]][[1]][["result"]][["stats"]][["pageviews"]]
+                          }
+                          )
+    
+    all_artists = c()
+
+    
+    
+    
+    }
+}
+
+
+```
+
+
+
+
+```{r}
+
+
+
 ```
 
