@@ -1,6 +1,6 @@
 # You only need to change two variables, `auth` and `your_username`.
 
-library(httr)
+require("httr")
 
 auth = "replace_me"
 
