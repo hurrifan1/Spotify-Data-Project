@@ -1,6 +1,6 @@
 # You only need to change two variables, `auth` and `your_username`.
 
-require("httr")
+if("httr" %in% rownames(installed.packages()) == FALSE) {install.packages("httr")}
 
 auth = "replace_me"
 
