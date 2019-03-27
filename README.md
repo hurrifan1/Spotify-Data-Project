@@ -10,7 +10,7 @@ To grab your Spotify library and save it as a .csv file, do the following:
 6. Go to the Developer documentation for the Library API [here](https://developer.spotify.com/documentation/web-api/reference/library/check-users-saved-tracks/) and then scroll down and click 'TRY IT.'
 7. Click on 'GET TOKEN' and then select the first checkbox, labelled 'user-library-read,' and then click 'REQUEST TOKEN.'
 8. When the page reloads, scroll down and copy everything in the 'OAuth Token' box.
-9. In the RStudio tab, replace 'replace_me' on line 5 with your token. It will look something like this:
+9. In the RStudio tab, replace 'replace_me' on line 5 with your token. It will look similar to this:
 
 `auth = "BQC0myVJdzycX_Wmn0CnvaC00Xsx5KyJrIsRntHBWUO0oNen0wnu-EPMR7aw0OrN9LClAVVj7h7IeHFRmH61fFA23yR0lKniDNynmBBt-1wQ6MeOhlobG0WmtzdIFdIQy9XXJLzsVtGRixl5UWHj6WRXOBxzv3p-H2SbFH6NSntDOgWy37ZjTg"`
 
