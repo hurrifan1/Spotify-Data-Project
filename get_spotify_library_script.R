@@ -2,9 +2,9 @@
 
 library(httr)
 
-auth = "BQD2OaC3aBoRLFw9a66Kcbt36VBBfN7R-rESMaFhJdmjW4zncnPrOyYf884Km2zz4GDG4bEUsdfM_9n8tyGd27CxwtrWqnhfKdNoeLXdj53_dM_9c_vefttIQEg6PL4oVfbJRC-bQeMMJD_-JZTRcwDJazXIdrxT9GztpQ"
+auth = "replace_me"
 
-your_username = "aspives"
+your_username = "replace_me"
 
 
 track_library = data.frame("MasterRow" = integer(), "user" = character(), "Added At" = character(), "Album" = character(), "Album ID" = character(), "Album Type" = character(), "Album Release Date" = character(), "Artist" = character(), "Artist ID" = character(), "Explicit" = character(), "ISRC" = character(), "Song ID" = character(), "Song Title" = character(), "Song Popularity" = character(), "Duration (ms)" = character(), "Is Playable" = character(), stringsAsFactors = FALSE)
