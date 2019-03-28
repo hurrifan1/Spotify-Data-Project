@@ -2,6 +2,8 @@
 
 if("httr" %in% rownames(installed.packages()) == FALSE) {install.packages("httr")}
 
+library(httr)
+
 auth = "replace_me"
 
 your_username = "replace_me"
