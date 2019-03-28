@@ -19,7 +19,7 @@ Grab my playlists in order to identify the Playlist IDs of the two 'The Daily' p
 First, grabbing raw data from the Spotify API:
 
 ```{r}
-auth = "BQAxZBPvS0UoQ2URIbbC-6w9iNu2Qt2j2k0TIfPlce_PQAK3r4B6DEQlgwuRzCigy93S-DQrbbO7T2s5jJNnhDO1o8Ut0wf72GWp1H3WoX9ValayBVioinpXdo2Rumq3HYqkcDtaMPSMkp2CfzcZ2UlLRCx7RA"
+auth = auth
 url = "https://api.spotify.com/v1/users/aspives/playlists"
 r = GET(url, add_headers("Authorization" = paste0("Bearer ", auth)))
 body = content(r, as = "parsed")
@@ -29,7 +29,7 @@ body = content(r, as = "parsed")
 Get Playlist IDs:
 
 ```{r}
-PL_df = data.frame("ID" = character(), "Name" = character(), stringsAsFactors = FALSE)
+PL_df = data.frame("Name" = character(), "ID" = character(), stringsAsFactors = FALSE)
 
 for ( x in 1:length(body[["items"]]) ) {
   if(length(grep("(daily)", body[["items"]][[x]][["name"]], ignore.case = TRUE)) > 0) {
@@ -46,11 +46,29 @@ Now we can use the IDs in another Spotify API call to grab the track, artist, me
 Get track info:
 
 ```{r}
-auth = "BQAxZBPvS0UoQ2URIbbC-6w9iNu2Qt2j2k0TIfPlce_PQAK3r4B6DEQlgwuRzCigy93S-DQrbbO7T2s5jJNnhDO1o8Ut0wf72GWp1H3WoX9ValayBVioinpXdo2Rumq3HYqkcDtaMPSMkp2CfzcZ2UlLRCx7RA"
+auth = "BQCW-y7GGnDHQA3iaO1TpAAjTJzgXEzvZOV5DzGH5zwvVpmqv3d7Hb1sE82cL4RpTFn3Q7m_vhtKvNfHUNWOuTZKSMrIdUY2Y54OfCFYjevxjYiK4dQYV_TsEBfkuitR9RkjYZSdcx62Xj8ionuyk7Wpmme68scZH5x3lFDmC4brko-zPANo5w"
 
 
 
-track_df = data.frame("MasterRow" = integer(), "Playlist ID" = character(), "Playlist Name" = character(), "Added At" = character(), "Added By" = character(), "Album" = character(), "Album ID" = character(), "Album Type" = character(), "Album Release Date" = character(), "Artist" = character(), "Artist ID" = character(), "Explicit" = character(), "ISRC" = character(), "Song ID" = character(), "Song Title" = character(), "Song Popularity" = character(), "Duration (ms)" = character(), "Is Playable" = character(), stringsAsFactors = FALSE)
+track_df = data.frame("MasterRow" = integer(),
+                      "Playlist ID" = character(),
+                      "Playlist Name" = character(),
+                      "Added At" = character(),
+                      "Added By" = character(),
+                      "Album" = character(),
+                      "Album ID" = character(),
+                      "Album Type" = character(),
+                      "Album Release Date" = character(),
+                      "Artist" = character(),
+                      "Artist ID" = character(),
+                      "Explicit" = character(),
+                      "ISRC" = character(),
+                      "Song ID" = character(),
+                      "Song Title" = character(),
+                      "Song Popularity" = character(),
+                      "Duration (ms)" = character(),
+                      "Is Playable" = character(),
+                      stringsAsFactors = FALSE)
 
 
 for ( y in 1:nrow(PL_df)){
@@ -73,39 +91,73 @@ body = content(r, as = "parsed")
                           # MasterRow
                           nrow(track_df)+1,
                           # Playlist ID
-                          PL_df[y,2],
+                          if( is.null( PL_df[y,2] ) ) NA else{
+                            PL_df[y,2]
+                          },
                           # Playlist Name
-                          PL_df[y,1],
+                          if( is.null( PL_df[y,1] ) ) NA else{
+                            PL_df[y,1]
+                          },
                           # Added At
-                          body[["items"]][[x]][["added_at"]],
+                          if( is.null( body[["items"]][[x]][["added_at"]] ) ) NA else{
+                            body[["items"]][[x]][["added_at"]]
+                          },
                           # Added By
-                          body[["items"]][[x]][["added_by"]][["id"]],
+                          if( is.null( body[["items"]][[x]][["added_by"]][["id"]] ) ) NA else{
+                            body[["items"]][[x]][["added_by"]][["id"]]
+                          },
                           # Album
-                          body[["items"]][[x]][["track"]][["album"]][["name"]],
+                          if( is.null( body[["items"]][[x]][["track"]][["album"]][["name"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["album"]][["name"]]
+                          },
                           # Album ID
-                          body[["items"]][[x]][["track"]][["album"]][["id"]],
+                          if( is.null( body[["items"]][[x]][["track"]][["album"]][["id"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["album"]][["id"]]
+                          },
                           # Album Type
-                          body[["items"]][[x]][["track"]][["album"]][["album_type"]],
+                          if( is.null( body[["items"]][[x]][["track"]][["album"]][["album_type"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["album"]][["album_type"]]
+                          },
                           # Album Release Date
-                          body[["items"]][[x]][["track"]][["album"]][["release_date"]],
+                          if( is.null( body[["items"]][[x]][["track"]][["album"]][["release_date"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["album"]][["release_date"]]
+                          },
                           # Artist
-                          body[["items"]][[x]][["track"]][["artists"]][[a]][["name"]],
+                          if( is.null( body[["items"]][[x]][["track"]][["artists"]][[a]][["name"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["artists"]][[a]][["name"]]
+                          },
                           # Artist ID
-                          body[["items"]][[x]][["track"]][["artists"]][[a]][["id"]],
+                          if( is.null( body[["items"]][[x]][["track"]][["artists"]][[a]][["id"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["artists"]][[a]][["id"]]
+                          },
                           # Explicit
-                          body[["items"]][[x]][["track"]][["explicit"]],
+                          if( is.null( body[["items"]][[x]][["track"]][["explicit"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["explicit"]]
+                          },
                           # ISRC
-                          body[["items"]][[x]][["track"]][["external_ids"]][["isrc"]],
+                          if( is.null( body[["items"]][[x]][["track"]][["external_ids"]][["isrc"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["external_ids"]][["isrc"]]
+                          },
                           # Song ID
-                          body[["items"]][[x]][["track"]][["id"]],
+                          if( is.null( body[["items"]][[x]][["track"]][["id"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["id"]]
+                          },
                           # Song Title
-                          body[["items"]][[x]][["track"]][["name"]],
+                          if( is.null( body[["items"]][[x]][["track"]][["name"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["name"]]
+                          },
                           # Song Popularity
-                          body[["items"]][[x]][["track"]][["popularity"]],
+                          if( is.null( body[["items"]][[x]][["track"]][["popularity"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["popularity"]]
+                          },
                           # Duration (ms)
-                          body[["items"]][[x]][["track"]][["duration_ms"]],
+                          if( is.null( body[["items"]][[x]][["track"]][["duration_ms"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["duration_ms"]]
+                          },
                           # Is Playable
-                          body[["items"]][[x]][["track"]][["is_playable"]]
+                          if( is.null( body[["items"]][[x]][["track"]][["is_playable"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["is_playable"]]
+                          }
                           )
     }
   }
@@ -136,10 +188,16 @@ track_df = track_df[track_df$Is.Playable == TRUE, ]
 ```
 
 
+Ditch NA rows:
+```{r}
+track_df = track_df[which(!is.na(track_df$MasterRow)),]
+```
+
+
 Bring in artist info:
 
 ```{r}
-auth = "BQAxZBPvS0UoQ2URIbbC-6w9iNu2Qt2j2k0TIfPlce_PQAK3r4B6DEQlgwuRzCigy93S-DQrbbO7T2s5jJNnhDO1o8Ut0wf72GWp1H3WoX9ValayBVioinpXdo2Rumq3HYqkcDtaMPSMkp2CfzcZ2UlLRCx7RA"
+auth = auth
 
 df_artists = track_df$Artist.ID
 
@@ -150,7 +208,13 @@ lank = 50
 inn = 1
 
 
-track_artists = data.frame("MasterRow" = "", "Artist ID" = "", "Artist Name" = "", "Artist Genre" = "", "Artist Popularity" = "", "Artist Followers" = "", stringsAsFactors = FALSE)
+track_artists = data.frame("MasterRow" = "",
+                           "Artist ID" = "",
+                           "Artist Name" = "",
+                           "Artist Genre" = "",
+                           "Artist Popularity" = "",
+                           "Artist Followers" = "",
+                           stringsAsFactors = FALSE)
 
 #while ( !is.na(track_artists$Artist.ID)){
  while ( lank <= (nrow(track_df) + 50)){
@@ -169,10 +233,14 @@ url = paste0("https://api.spotify.com/v1/artists?ids=", artists)
 r = GET(url, add_headers("Authorization" = paste0("Bearer ", auth)))
 body = content(r, as = "parsed")
   
-
+ # if(is.null(body[["artists"]][[1]][["id"]])) break
 
   for ( x in 1:50 ) {
+    
     for (a in 1:length(body[["artists"]][[x]][["genres"]])) {
+      
+    if(is.null(body[["artists"]][[x]][["id"]])) break
+      
     track_artists[nrow(track_artists)+1,] = c(
                           # MasterRow
                           nrow(track_artists)+1,
@@ -181,8 +249,9 @@ body = content(r, as = "parsed")
                           # Artist Name
                           body[["artists"]][[x]][["name"]],
                           # Artist Genre
-                          if ( length(body[["artists"]][[x]][["genres"]]) == 0 ) {NA} else {
-                          body[["artists"]][[x]][["genres"]][[a]] },
+                          if ( length(body[["artists"]][[x]][["genres"]]) == 0 ) NA else {
+                            body[["artists"]][[x]][["genres"]][[a]]
+                            },
                           # Artist Popularity
                           body[["artists"]][[x]][["popularity"]],
                           # Artist Followers
@@ -193,7 +262,6 @@ body = content(r, as = "parsed")
 
 lank = lank + 50
 inn = inn + 50
-
 }
 ```
 
@@ -210,7 +278,7 @@ inn = inn + 50
 Bring in song audio analysis data:
 
 ```{r}
-auth = "BQAxZBPvS0UoQ2URIbbC-6w9iNu2Qt2j2k0TIfPlce_PQAK3r4B6DEQlgwuRzCigy93S-DQrbbO7T2s5jJNnhDO1o8Ut0wf72GWp1H3WoX9ValayBVioinpXdo2Rumq3HYqkcDtaMPSMkp2CfzcZ2UlLRCx7RA"
+auth = auth
 
 df_songs = track_df$Song.ID
 
@@ -221,7 +289,22 @@ lank = 50
 inn = 1
 
 
-track_songs = data.frame("MasterRow" = integer(), "Song ID" = character(), "Danceability" = character(), "Energy" = character(), "Key" = character(), "Loudness" = character(), "Mode" = character(), "Speechiness" = character(), "Acousticness" = character(), "Instrumentalness" = character(), "Liveness" = character(), "Valence" = character(), "Tempo" = character(), "Type" = character(), "Time Signature" = character(), stringsAsFactors = FALSE)
+track_songs = data.frame("MasterRow" = integer(),
+                         "Song ID" = character(),
+                         "Danceability" = character(),
+                         "Energy" = character(),
+                         "Key" = character(),
+                         "Loudness" = character(),
+                         "Mode" = character(),
+                         "Speechiness" = character(),
+                         "Acousticness" = character(),
+                         "Instrumentalness" = character(),
+                         "Liveness" = character(),
+                         "Valence" = character(),
+                         "Tempo" = character(),
+                         "Type" = character(),
+                         "Time Signature" = character(),
+                         stringsAsFactors = FALSE)
 
 #while ( !is.na(track_songs$Song.ID)){
  while ( lank <= (nrow(track_df) + 50)){
@@ -240,7 +323,7 @@ url = paste0("https://api.spotify.com/v1/audio-features?ids=", songs)
 r = GET(url, add_headers("Authorization" = paste0("Bearer ", auth)))
 body = content(r, as = "parsed")
   
-
+if(is.null(body[["audio_features"]][[1]][["id"]])) break
 
   for ( x in 1:50 ) {
     track_songs[nrow(track_songs)+1,] = c(
@@ -320,7 +403,7 @@ for (g in 1:nrow(track_df)){
 Get data on personal library
 
 ```{r}
-auth = "BQD2OaC3aBoRLFw9a66Kcbt36VBBfN7R-rESMaFhJdmjW4zncnPrOyYf884Km2zz4GDG4bEUsdfM_9n8tyGd27CxwtrWqnhfKdNoeLXdj53_dM_9c_vefttIQEg6PL4oVfbJRC-bQeMMJD_-JZTRcwDJazXIdrxT9GztpQ"
+auth = auth
 
 your_username = "aspives"
 
@@ -454,8 +537,10 @@ write.csv2(track_library, "/Users/austin/Documents/Data Stuff/Spotify Data proje
 ```
 
 
+Tried to incorporate the Genius API here but it's probably a bust, unfortunately.
+
 ```{r}
-auth = "vPRU-vpdXiXrDBVZTC4uur4GTvOE9GhShXdjopz5FkhvglwAc5vKRRDcDvKZyEx2"
+auth = "Lf_Q6ejU94lUGlVnp8wQWlIvL-E0w9O1k7_7YtoBdHgb2yJBUWNPxZ9idhX_BFrP"
 
 track_genius = data.frame("MasterRow" = integer(), "Song Title" = character(), "Song Title with Feat" = character(), "Artist" = character(), "Genius ID" = character(), "Searched Song" = character(), "Searched Song Spotify ID" = character(), "Hot" = character(), "Page Views" = character(), stringsAsFactors = FALSE)
 
@@ -480,7 +565,8 @@ if ( track_df[q, 14] == if( is.na(track_df[q+1, 14]) ){
     body = content(r, as = "parsed")
     
     if ( length(body[["response"]][["hits"]]) == 0) {
-      track_genius[nrow(track_genius)+1,] = c(nrow(track_genius)+1,all_artists,NA,NA,NA,NA,NA,NA,NA)
+      track_genius[nrow(track_genius)+1,] = c(nrow(track_genius)+1,paste(all_artists, collapse = ' '),NA,NA,NA,NA,NA,NA,NA)
+      all_artists = c()
       next
     }
 
@@ -526,7 +612,177 @@ if ( track_df[q, 14] == if( is.na(track_df[q+1, 14]) ){
 
 ```{r}
 
+track_df$Song.Popularity = as.integer(track_df$Song.Popularity)
+
+ggplot(data = track_df, aes(x = track_df$Song.Popularity)) +
+  geom_histogram()
 
 
+
+```
+
+
+
+```{r}
+
+track_df$Album.Release.Date = as.Date(track_df$Album.Release.Date)
+
+
+ggplot(data = track_df, aes(x = track_df$Song.Popularity, y = track_df$Album.Release.Date)) +
+  geom_point()
+```
+
+
+
+```{r}
+track_all = join(track_df, track_artists, by = "Artist.ID", type =  "full", match = "all")
+
+track_all$Artist.Popularity = as.integer(track_all$Artist.Popularity)
+
+matrix(track_all$Song.Popularity, track_all$Artist.Popularity)
+
+diff_tbl = data.frame("Song Title"=character(), "Artist Name"=character(), "Song Popularity"=integer(), "Artist Popularity"=integer(), "diff"=integer(), stringsAsFactors = FALSE)
+
+for ( i in 1:nrow(track_all)) {
+  diff = track_all[i,16] - track_all[i,22]
+  diff_tbl[i,1] = track_all[i,15]
+  diff_tbl[i,2] = track_all[i,10]
+  diff_tbl[i,3] = track_all[i,16]
+  diff_tbl[i,4] = track_all[i,22]
+  # diff_tbl[i,5] = if(is.na(diff)){"Not Available"}else{as.integer(diff)}
+  diff_tbl[i,5] = as.integer(diff)
+}
+```
+
+
+
+
+
+
+
+```{r}
+asbb = c(
+                          # MasterRow
+                          nrow(track_df)+1,
+                          # Playlist ID
+                          if( is.null( PL_df[y,2] ) ) NA else{
+                            PL_df[y,2]
+                          },
+                          # Playlist Name
+                          if( is.null( PL_df[y,1] ) ) NA else{
+                            PL_df[y,1]
+                          },
+                          # Added At
+                          if( is.null( body[["items"]][[x]][["added_at"]] ) ) NA else{
+                            body[["items"]][[x]][["added_at"]]
+                          },
+                          # Added By
+                          if( is.null( body[["items"]][[x]][["added_by"]][["id"]] ) ) NA else{
+                            body[["items"]][[x]][["added_by"]][["id"]]
+                          },
+                          # Album
+                          if( is.null( body[["items"]][[x]][["track"]][["album"]][["name"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["album"]][["name"]]
+                          },
+                          # Album ID
+                          if( is.null( body[["items"]][[x]][["track"]][["album"]][["id"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["album"]][["id"]]
+                          },
+                          # Album Type
+                          if( is.null( body[["items"]][[x]][["track"]][["album"]][["album_type"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["album"]][["album_type"]]
+                          },
+                          # Album Release Date
+                          if( is.null( body[["items"]][[x]][["track"]][["album"]][["release_date"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["album"]][["release_date"]]
+                          },
+                          # Artist
+                          if( is.null( body[["items"]][[x]][["track"]][["artists"]][[a]][["name"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["artists"]][[a]][["name"]]
+                          },
+                          # Artist ID
+                          if( is.null( body[["items"]][[x]][["track"]][["artists"]][[a]][["id"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["artists"]][[a]][["id"]]
+                          },
+                          # Explicit
+                          if( is.null( body[["items"]][[x]][["track"]][["explicit"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["explicit"]]
+                          },
+                          # ISRC
+                          if( is.null( body[["items"]][[x]][["track"]][["external_ids"]][["isrc"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["external_ids"]][["isrc"]]
+                          },
+                          # Song ID
+                          if( is.null( body[["items"]][[x]][["track"]][["id"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["id"]]
+                          },
+                          # Song Title
+                          if( is.null( body[["items"]][[x]][["track"]][["name"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["name"]]
+                          },
+                          # Song Popularity
+                          if( is.null( body[["items"]][[x]][["track"]][["popularity"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["popularity"]]
+                          },
+                          # Duration (ms)
+                          if( is.null( body[["items"]][[x]][["track"]][["duration_ms"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["duration_ms"]]
+                          },
+                          # Is Playable
+                          if( is.null( body[["items"]][[x]][["track"]][["is_playable"]] ) ) NA else{
+                            body[["items"]][[x]][["track"]][["is_playable"]]
+                          }
+                          )
+
+asbb
+```
+
+
+
+
+
+
+```{r}
+asbb = list(
+                          # MasterRow
+                          nrow(track_df)+1,
+                          # Playlist ID
+                          PL_df[y,2],
+                          # Playlist Name
+                          PL_df[y,1],
+                          # Added At
+                          body[["items"]][[x]][["added_at"]],
+                          # Added By
+                          body[["items"]][[x]][["added_by"]][["id"]],
+                          # Album
+                          body[["items"]][[x]][["track"]][["album"]][["name"]],
+                          # Album ID
+                          body[["items"]][[x]][["track"]][["album"]][["id"]],
+                          # Album Type
+                          body[["items"]][[x]][["track"]][["album"]][["album_type"]],
+                          # Album Release Date
+                          body[["items"]][[x]][["track"]][["album"]][["release_date"]],
+                          # Artist
+                          body[["items"]][[x]][["track"]][["artists"]][[a]][["name"]],
+                          # Artist ID
+                          body[["items"]][[x]][["track"]][["artists"]][[a]][["id"]],
+                          # Explicit
+                          body[["items"]][[x]][["track"]][["explicit"]],
+                          # ISRC
+                          body[["items"]][[x]][["track"]][["external_ids"]][["isrc"]],
+                          # Song ID
+                          body[["items"]][[x]][["track"]][["id"]],
+                          # Song Title
+                          body[["items"]][[x]][["track"]][["name"]],
+                          # Song Popularity
+                          body[["items"]][[x]][["track"]][["popularity"]],
+                          # Duration (ms)
+                          body[["items"]][[x]][["track"]][["duration_ms"]],
+                          # Is Playable
+                          body[["items"]][[x]][["track"]][["is_playable"]]
+                          ),
+               "21", NA)
+
+asbb
 ```
 
