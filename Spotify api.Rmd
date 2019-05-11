@@ -11,6 +11,8 @@ Set up.
 #install.packages("httr")
 
 library(httr)
+
+auth = "BQDlZ6AmhM6I_KC1EESuPjN6myV7cJtsJnJeraCwjEwfHhI7QdbEfSc0FW9yXLVufeCHsX4Omvqi4YKyljLc87l4ntNFJoDSq_xGsfSVF-toTqxLLiofNmRFKiW2rE4laXfDN5OgPrbnCLig-x0UMyzbJQ-WZN57cGLa9QauGDvJtLwfxVpT_w"
 ```
 
 
@@ -46,7 +48,7 @@ Now we can use the IDs in another Spotify API call to grab the track, artist, me
 Get track info:
 
 ```{r}
-auth = "BQCW-y7GGnDHQA3iaO1TpAAjTJzgXEzvZOV5DzGH5zwvVpmqv3d7Hb1sE82cL4RpTFn3Q7m_vhtKvNfHUNWOuTZKSMrIdUY2Y54OfCFYjevxjYiK4dQYV_TsEBfkuitR9RkjYZSdcx62Xj8ionuyk7Wpmme68scZH5x3lFDmC4brko-zPANo5w"
+auth = auth
 
 
 
