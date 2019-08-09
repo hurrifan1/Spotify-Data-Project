@@ -1,7 +1,7 @@
 ---
 title: "Spotify R"
 author: "Austin Spivey"
-date: "2/8/2019"
+date: "8/9/2019"
 output: html_document
 ---
 
@@ -12,7 +12,7 @@ Set up.
 
 library(httr)
 
-auth = "BQDlZ6AmhM6I_KC1EESuPjN6myV7cJtsJnJeraCwjEwfHhI7QdbEfSc0FW9yXLVufeCHsX4Omvqi4YKyljLc87l4ntNFJoDSq_xGsfSVF-toTqxLLiofNmRFKiW2rE4laXfDN5OgPrbnCLig-x0UMyzbJQ-WZN57cGLa9QauGDvJtLwfxVpT_w"
+auth = "token goes here"
 ```
 
 
